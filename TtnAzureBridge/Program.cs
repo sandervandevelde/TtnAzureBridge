@@ -22,6 +22,10 @@ namespace TtnAzureBridge
 
         private static MqttClient _mqttClient;
 
+        /// <summary>
+        /// Execute all logic
+        /// </summary>
+        /// <param name="args"></param>
         private static void Main(string[] args)
         {
             ConstructDeviceList();
@@ -36,6 +40,9 @@ namespace TtnAzureBridge
             }
         }
 
+        /// <summary>
+        /// Construct a device list for unique device handling
+        /// </summary>
         private static void ConstructDeviceList()
         {
             _deviceClientList = new DeviceClientList();
@@ -62,6 +69,9 @@ namespace TtnAzureBridge
             };
         }
 
+        /// <summary>
+        /// Connect to Azure IoT Hub
+        /// </summary>
         private static void ConstructIoTHubInfrastructure()
         {
             _registryManager = RegistryManager.CreateFromConnectionString(ConfigurationManager.AppSettings["ConnectionString"]);
@@ -69,6 +79,9 @@ namespace TtnAzureBridge
             Console.WriteLine($"IoT Hub {ConfigurationManager.AppSettings["IotHubName"]} connected");
         }
 
+        /// <summary>
+        /// Open MQTT connection
+        /// </summary>
         private static void StartMqttConnection()
         {
             _mqttClient = new MqttClient(ConfigurationManager.AppSettings["BrokerHostName"]);
@@ -83,14 +96,24 @@ namespace TtnAzureBridge
 
             _mqttClient.MqttMsgPublished += _mqttClient_MqttMsgPublished;
 
-            _mqttClient.Connect(Guid.NewGuid().ToString(), ConfigurationManager.AppSettings["Username"], ConfigurationManager.AppSettings["Password"]);
+            _mqttClient.Connect(Guid.NewGuid().ToString(), ConfigurationManager.AppSettings["ApplicationEui"], ConfigurationManager.AppSettings["ApplicationAccessKey"]);
         }
 
+        /// <summary>
+        /// Log MQTT publish
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private static void _mqttClient_MqttMsgPublished(object sender, MqttMsgPublishedEventArgs e)
         {
             Console.WriteLine($"MQTT handling downlink Id {e.MessageId} published: {e.IsPublished}");
         }
 
+        /// <summary>
+        /// Publish MQTT message
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private static async void Client_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
         {
             Console.WriteLine("MQTT handling uplink");
@@ -162,6 +185,11 @@ namespace TtnAzureBridge
             Console.WriteLine("IoT Hub message sent");
         }
 
+        /// <summary>
+        /// Log MQTT client subscription
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private static void Client_MqttMsgSubscribed(object sender, MqttMsgSubscribedEventArgs e)
         {
             Console.WriteLine($"MQTT client {ConfigurationManager.AppSettings["Username"]} on {ConfigurationManager.AppSettings["BrokerHostName"]} subscribed");
@@ -172,6 +200,11 @@ namespace TtnAzureBridge
             Console.WriteLine("MQTT connection closed");
         }
 
+        /// <summary>
+        /// Add a device to the IoT Hub registry
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <returns>Microsoft.Azure.Devices.Device</returns>
         private static async Task<Device> AddDeviceAsync(string deviceId)
         {
             Device device;
