@@ -41,7 +41,13 @@ namespace TtnAzureBridge
         }
 
         public event EventHandler<IotHubMessage> IoTHubMessageReceived;
-
+        
+        /// <summary>
+        /// Handling device threads
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <param name="deviceClient"></param>
+        /// <returns>awaitable task</returns>
         private async Task ThreadHandler(string deviceId, DeviceClient deviceClient)
         {
             while (true)
