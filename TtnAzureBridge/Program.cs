@@ -178,7 +178,7 @@ namespace TtnAzureBridge
 
             // send message
 
-            var message = new Message(Encoding.ASCII.GetBytes(iotHubMessageString));
+            var message = new Message(Encoding.UTF8.GetBytes(iotHubMessageString));
 
             await deviceClient.SendEventAsync(message);
 
