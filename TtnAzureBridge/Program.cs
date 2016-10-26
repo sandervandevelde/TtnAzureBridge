@@ -1,9 +1,7 @@
 ﻿using Microsoft.Azure.Devices;
-using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Common.Exceptions;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Text;
 using System.Threading;
@@ -58,7 +56,7 @@ namespace TtnAzureBridge
 
                 var mqttResult =
                     _mqttClient.Publish(
-                        $"{ConfigurationManager.AppSettings["Username"]}/devices/{message.DeviceId}/down",
+                        $"{ConfigurationManager.AppSettings["ApplicationEui"]}/devices/{message.DeviceId}/down",
                         message.Bytes,
                         MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE,
                         false);
@@ -98,10 +96,28 @@ namespace TtnAzureBridge
 
             _mqttClient.MqttMsgPublished += _mqttClient_MqttMsgPublished;
 
-            var response = _mqttClient.Connect(
-                          Guid.NewGuid().ToString(),
-                          ConfigurationManager.AppSettings["ApplicationEui"],
-                          ConfigurationManager.AppSettings["ApplicationAccessKey"]);
+            byte response;
+
+            if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["KeepAlivePeriod"]))
+            {
+                var keepAlivePeriod = Convert.ToUInt16(ConfigurationManager.AppSettings["KeepAlivePeriod"]);
+
+                response = _mqttClient.Connect(
+                    Guid.NewGuid().ToString(),
+                    ConfigurationManager.AppSettings["ApplicationEui"],
+                    ConfigurationManager.AppSettings["ApplicationAccessKey"],
+                    true,
+                    keepAlivePeriod);
+
+                Console.WriteLine($"MQTT KeepAlivePeriod is {keepAlivePeriod}");
+            }
+            else
+            {
+                response = _mqttClient.Connect(
+                    Guid.NewGuid().ToString(),
+                    ConfigurationManager.AppSettings["ApplicationEui"],
+                    ConfigurationManager.AppSettings["ApplicationAccessKey"]);
+            }
 
             if (response != 0)
             {
@@ -202,12 +218,17 @@ namespace TtnAzureBridge
         /// <param name="e"></param>
         private static void Client_MqttMsgSubscribed(object sender, MqttMsgSubscribedEventArgs e)
         {
-            Console.WriteLine($"MQTT client {ConfigurationManager.AppSettings["Username"]} on {ConfigurationManager.AppSettings["BrokerHostName"]} subscribed");
+            Console.WriteLine($"MQTT subscribed to {ConfigurationManager.AppSettings["ApplicationEui"]} on {ConfigurationManager.AppSettings["BrokerHostName"]}");
         }
 
         private static void Client_ConnectionClosed(object sender, EventArgs e)
         {
-            Console.WriteLine("MQTT connection closed");
+            Console.WriteLine("MQTT connection closed. Exit for restart.");
+
+            if (ConfigurationManager.AppSettings["ExitOnConnectionClosed"].ToUpper() == "TRUE")
+            {
+                Environment.Exit(1);
+            }
         }
 
         /// <summary>
