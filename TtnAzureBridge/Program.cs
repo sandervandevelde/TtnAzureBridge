@@ -86,7 +86,9 @@ namespace TtnAzureBridge
         {
             _mqttClient = new MqttClient(ConfigurationManager.AppSettings["BrokerHostName"]);
 
-            _mqttClient.Subscribe(new string[] { ConfigurationManager.AppSettings["Topic"] }, new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE });
+            _mqttClient.Subscribe(
+                new[] { ConfigurationManager.AppSettings["Topic"] },
+                new[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE });
 
             _mqttClient.ConnectionClosed += Client_ConnectionClosed;
 
@@ -96,7 +98,15 @@ namespace TtnAzureBridge
 
             _mqttClient.MqttMsgPublished += _mqttClient_MqttMsgPublished;
 
-            _mqttClient.Connect(Guid.NewGuid().ToString(), ConfigurationManager.AppSettings["ApplicationEui"], ConfigurationManager.AppSettings["ApplicationAccessKey"]);
+            var response = _mqttClient.Connect(
+                          Guid.NewGuid().ToString(),
+                          ConfigurationManager.AppSettings["ApplicationEui"],
+                          ConfigurationManager.AppSettings["ApplicationAccessKey"]);
+
+            if (response != 0)
+            {
+                Console.WriteLine("Mqtt connection failed. Check TTN credentials.");
+            }
         }
 
         /// <summary>
@@ -130,7 +140,7 @@ namespace TtnAzureBridge
 
             // Create or get device
 
-            var device = (Device)await AddDeviceAsync(deviceId);
+            var device = await AddDeviceAsync(deviceId);
 
             if (device.Status != DeviceStatus.Enabled)
             {
@@ -157,13 +167,13 @@ namespace TtnAzureBridge
 
             iotHubMessage.time = time;
 
-            string iotHubMessageString = JsonConvert.SerializeObject(iotHubMessage);
+            var iotHubMessageString = JsonConvert.SerializeObject(iotHubMessage);
 
             Console.WriteLine($"IoT Hub message {iotHubMessageString}");
 
             // create device client
 
-            var key = string.Empty;
+            string key;
 
             if (ConfigurationManager.AppSettings["DeviceKeyKind"] == "Primary")
             {
