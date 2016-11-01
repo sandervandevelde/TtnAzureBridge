@@ -74,6 +74,8 @@ namespace TtnAzureBridge
         {
             _registryManager = RegistryManager.CreateFromConnectionString(ConfigurationManager.AppSettings["ConnectionString"]);
 
+            Console.Write($"time {DateTime.Now} -> ");
+
             Console.WriteLine($"IoT Hub {ConfigurationManager.AppSettings["IotHubName"]} connected");
         }
 
@@ -223,12 +225,18 @@ namespace TtnAzureBridge
 
         private static void Client_ConnectionClosed(object sender, EventArgs e)
         {
-            Console.WriteLine("MQTT connection closed. Exit for restart.");
+            Console.Write($"time {DateTime.Now} -> ");
+
+            Console.Write("MQTT connection closed.");
 
             if (ConfigurationManager.AppSettings["ExitOnConnectionClosed"].ToUpper() == "TRUE")
             {
+                Console.WriteLine(" Exit for restart.");
+
                 Environment.Exit(1);
             }
+
+            Console.Write(" No exit.");
         }
 
         /// <summary>
