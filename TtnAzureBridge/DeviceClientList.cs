@@ -12,12 +12,25 @@ namespace TtnAzureBridge
 {
     public class DeviceClientList : Dictionary<string, GatewayDeviceClient>
     {
+        private DateTime _lastRemovalOfOldDevices;
+
+        private int _removeDevicesAfterMinutes;
+
+        public DeviceClientList(int removeDevicesAfterMinutes)
+        {
+            _removeDevicesAfterMinutes = removeDevicesAfterMinutes;
+
+            _lastRemovalOfOldDevices = DateTime.Now;
+        }
+
         public DeviceClient GetDeviceClient(string deviceId, string key)
         {
             DeviceClient deviceClient;
 
             if (this.ContainsKey(deviceId))
             {
+                this[deviceId].DateTimeLastVisit = DateTime.Now;
+
                 deviceClient = this[deviceId].DeviceClient;
             }
             else
@@ -32,16 +45,62 @@ namespace TtnAzureBridge
                 thread.Start();
 
                 // Keep thread in memory
-                var gatewayDeviceClient = new GatewayDeviceClient { DeviceClient = deviceClient, Thread = thread };
+                var gatewayDeviceClient = new GatewayDeviceClient
+                {
+                    DeviceClient = deviceClient,
+                    Thread = thread,
+                    DateTimeLastVisit = DateTime.Now
+                };
 
-                this.Add(deviceId, gatewayDeviceClient);
+                Add(deviceId, gatewayDeviceClient);
             }
+
+            TryToRemoveOldDevices();
 
             return deviceClient;
         }
 
+        private void TryToRemoveOldDevices()
+        {
+            var lastCheck = DateTime.Now.AddMinutes(-1 * _removeDevicesAfterMinutes);
+
+            if (_lastRemovalOfOldDevices < lastCheck)
+            {
+                if (DeviceRemoved != null)
+                {
+                    DeviceRemoved(this, $"Removal length: {this.Count}");
+                }
+
+                _lastRemovalOfOldDevices = DateTime.Now;
+
+                for (var i = this.Count - 1; i > 0; i--)
+                {
+                    var item = this.ElementAt(i);
+
+                    if (item.Value.DateTimeLastVisit < lastCheck)
+                    {
+                        item.Value.Thread.Abort();
+
+                        if (DeviceRemoved != null)
+                        {
+                            DeviceRemoved(this, item.Key);
+                        }
+
+                        this.Remove(item.Key);
+                    }
+                }
+
+                if (DeviceRemoved != null)
+                {
+                    DeviceRemoved(this, $"Removal count afterwards: {this.Count}");
+                }
+            }
+        }
+
         public event EventHandler<IotHubMessage> IoTHubMessageReceived;
-        
+
+        public event EventHandler<string> DeviceRemoved;
+
         /// <summary>
         /// Handling device threads
         /// </summary>
@@ -74,6 +133,8 @@ namespace TtnAzureBridge
         public DeviceClient DeviceClient { get; set; }
 
         public Thread Thread { get; set; }
+
+        public DateTime DateTimeLastVisit { get; set; }
     }
 
     public class IotHubMessage

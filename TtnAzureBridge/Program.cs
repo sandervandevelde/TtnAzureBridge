@@ -43,7 +43,12 @@ namespace TtnAzureBridge
         /// </summary>
         private static void ConstructDeviceList()
         {
-            _deviceClientList = new DeviceClientList();
+            _deviceClientList = new DeviceClientList(Convert.ToInt32(ConfigurationManager.AppSettings["RemoveDevicesAfterMinutes"]));
+
+            _deviceClientList.DeviceRemoved += (sender, message) =>
+            {
+                Console.Write(message);
+            };
 
             _deviceClientList.IoTHubMessageReceived += (sender, message) =>
             {
