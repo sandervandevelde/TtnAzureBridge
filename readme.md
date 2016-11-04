@@ -1,4 +1,4 @@
-# TTN Azure Gateway
+# TTN Azure Bridge
 
 ## Introduction
 
@@ -16,15 +16,15 @@ Just download the sourcecode and fill in the following application settings:
     <add key="ConnectionString" value="HostName=[iothub name].azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=[shared access key]" />
   </appSettings>
 
-*Note: This Gateway connects to TTN apps, added to https://staging.thethingsnetwork.org/applications*
+*Note: This Bridge connects to TTN apps, added to https://staging.thethingsnetwork.org/applications*
 
-## Gateway output
+## Bridge output
 
-The gateway should support both uplink and downlink
+The bridge should support both uplink and downlink
 
 ![alt tag](img/Gateway.png)
 
-*Note: downlink is only supported by real TTN gateways, not package forwarders.* 
+*Note: downlink to the devices is only supported by real TTN gateways, not package forwarders.* 
 
 ## Microsoft Azure IoT Hub Explorer - Uplink
 
