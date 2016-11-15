@@ -68,7 +68,7 @@ namespace TtnAzureBridge
             {
                 if (DeviceRemoved != null)
                 {
-                    DeviceRemoved(this, $"Removal length: {this.Count}");
+                    DeviceRemoved(this, $"Removal length: {this.Count} ");
                 }
 
                 _lastRemovalOfOldDevices = DateTime.Now;
@@ -92,7 +92,7 @@ namespace TtnAzureBridge
 
                 if (DeviceRemoved != null)
                 {
-                    DeviceRemoved(this, $"Removal count afterwards: {this.Count}");
+                    DeviceRemoved(this, $"Removal count afterwards: {this.Count} ");
                 }
             }
         }

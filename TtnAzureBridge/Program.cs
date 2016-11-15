@@ -38,6 +38,13 @@ namespace TtnAzureBridge
             }
         }
 
+        public class Message2
+        {
+            public string payload { get; set; }
+            public int port { get; set; }
+            public string ttl { get; set; }
+        }
+
         /// <summary>
         /// Construct a device list for unique device handling
         /// </summary>
@@ -54,17 +61,20 @@ namespace TtnAzureBridge
             {
                 Console.Write("IoT Hub Downlink");
 
-                foreach (var messageByte in message.Bytes)
-                {
-                    Console.Write($" {(int)messageByte}");
-                }
+                var payload = Convert.ToBase64String(message.Bytes);
+                var jsonMessage = "{\"payload\":\"" + payload + "\", \"port\": 1, \"ttl\": \"1h\"}";
+
+                Console.Write($"; Uploaded: {jsonMessage}");
+
+                var encoding = Encoding.UTF8;
+                var bytes = encoding.GetBytes(jsonMessage);
 
                 var mqttResult =
-                    _mqttClient.Publish(
-                        $"{ConfigurationManager.AppSettings["ApplicationEui"]}/devices/{message.DeviceId}/down",
-                        message.Bytes,
-                        MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE,
-                        false);
+                 _mqttClient.Publish(
+                     $"{ConfigurationManager.AppSettings["ApplicationEui"]}/devices/{message.DeviceId}/down",
+                     bytes,
+                     MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE,
+                     false);
 
                 Console.Write($" - Id {mqttResult}");
 
@@ -174,13 +184,18 @@ namespace TtnAzureBridge
 
             // extract data from json
 
+            var counter = jsonMessage.counter.ToString();
             var deviceMessage = jsonMessage.fields.ToString();
 
             var metaText = jsonMessage.metadata.ToString();
-
             var jsonMeta = JsonConvert.DeserializeObject(metaText);
 
             var time = jsonMeta[0].server_time.ToString();
+            var gatewayEui = jsonMeta[0].gateway_eui.ToString();
+            var latitude = jsonMeta[0].latitude.ToString();
+            var longitude = jsonMeta[0].longitude.ToString();
+            var rssi = jsonMeta[0].rssi.ToString();
+            var frequency = jsonMeta[0].frequency.ToString();
 
             // construct message for IoT Hub
 
@@ -192,7 +207,7 @@ namespace TtnAzureBridge
 
             var iotHubMessageString = JsonConvert.SerializeObject(iotHubMessage);
 
-            Console.WriteLine($"IoT Hub message {iotHubMessageString}");
+            Console.WriteLine($"IoT Hub message ({counter}/{gatewayEui}/{latitude}/{longitude}/{rssi}/{frequency}): {iotHubMessageString}");
 
             // create device client
 
