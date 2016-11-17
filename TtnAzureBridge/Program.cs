@@ -87,7 +87,7 @@ namespace TtnAzureBridge
         /// </summary>
         private static void ConstructIoTHubInfrastructure()
         {
-            _registryManager = RegistryManager.CreateFromConnectionString(ConfigurationManager.AppSettings["ConnectionString"]);
+            _registryManager = RegistryManager.CreateFromConnectionString(ConfigurationManager.ConnectionStrings["IoTHub"].ConnectionString);
 
             Console.Write($"time {DateTime.Now} -> ");
 
