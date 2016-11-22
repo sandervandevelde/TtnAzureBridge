@@ -54,3 +54,9 @@ When a device sends a message to bridge, a deviceclient is connected to the IoT 
 It can happen that the MQTT connection is closed, for unknown reasons. If that happens, an event handler is executed. Using the *ExitOnConnectionClosed* setting, you can specify what will happen. 
 
 I suggest to run this bridge as an Azure Web Job and close the application if the connection is closed. The Web Job behavior is to restart the job again after a certain amount of seconds (normally 60 seconds). You can overrule the time using the setting *WEBJOBS_RESTART_TIME* in the portal (not in the app.config).    
+
+## Azure WebJob
+
+This bridge can be used as an Azure webJob too. Follow this [workshop](workshop-ttncsharpbridge.md) to depoy it as a WebJob.
+
+
