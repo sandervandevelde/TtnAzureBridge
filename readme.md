@@ -22,7 +22,7 @@ Just download the sourcecode and fill in the following application settings:
 
 ## Bridge output
 
-The bridge should support both uplink and downlink
+The bridge should support both uplink and downlink:
 
 ![alt tag](img/Gateway.png)
 
