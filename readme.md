@@ -6,6 +6,7 @@ This is a TTN bridge for Microsoft Azure IoT Hub, written in C#. It supports bot
 
 Just download the sourcecode and fill in the following application settings:
 
+```xml
   <appSettings>
     <add key="BrokerHostName" value="staging.thethingsnetwork.org" />
     <add key="Username" value="[TTN App EUI]" />
@@ -17,6 +18,7 @@ Just download the sourcecode and fill in the following application settings:
     <add key ="ExitOnConnectionClosed" value="True" />
     <add key ="RemoveDevicesAfterMinutes" value="5" />
   </appSettings>
+```
 
 *Note: This Bridge connects to TTN apps, added to https://staging.thethingsnetwork.org/applications*
 
