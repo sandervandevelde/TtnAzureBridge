@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
-using Message = Microsoft.Azure.Devices.Client.Message;
 
 namespace TtnAzureBridge
 {
@@ -218,7 +217,7 @@ namespace TtnAzureBridge
 
             // send message
 
-            var message = new Message(Encoding.UTF8.GetBytes(iotHubMessageString));
+            var message = new Microsoft.Azure.Devices.Client.Message(Encoding.UTF8.GetBytes(iotHubMessageString));
 
             await deviceClient.SendEventAsync(message);
 
