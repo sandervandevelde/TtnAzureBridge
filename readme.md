@@ -9,15 +9,19 @@ Just download the sourcecode and fill in the following application settings:
 ```xml
   <appSettings>
     <add key="BrokerHostName" value="staging.thethingsnetwork.org" />
-    <add key="Username" value="[TTN App EUI]" />
-    <add key="Password" value="[TTN App Access Key]" />
+    <add key="ApplicationEui" value="[TTN App EUI]" />
+    <add key="ApplicationAccessKey" value="[TTN App Access Key]" />
     <add key="DeviceKeyKind" value="Primary" />
     <add key="Topic" value="#" />
-    <add key="IotHubName" value ="[iothub name]" />
-    <add key="ConnectionString" value="HostName=[iothub name].azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=[shared access key]" />
-    <add key ="ExitOnConnectionClosed" value="True" />
-    <add key ="RemoveDevicesAfterMinutes" value="5" />
+    <add key="IotHubName" value="[iothub name]" />
+    <add key="KeepAlivePeriod" value="60000" />
+    <add key="ExitOnConnectionClosed" value="False" />
+    <add key="RemoveDevicesAfterMinutes" value="5" />
   </appSettings>
+
+  <connectionStrings>
+    <add name="IoTHub" connectionString="HostName=[iothub name].azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=[shared access key]" />
+  </connectionStrings>
 ```
 
 *Note: This Bridge connects to TTN apps, added to https://staging.thethingsnetwork.org/applications*

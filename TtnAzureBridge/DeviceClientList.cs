@@ -117,10 +117,12 @@ namespace TtnAzureBridge
                 {
                     if (IoTHubMessageReceived != null)
                     {
-                        IoTHubMessageReceived(this, new IotHubMessage { DeviceId = deviceId, Bytes = receivedMessage.GetBytes() });
-                    }
+                        var bytes = receivedMessage.GetBytes();
 
-                    await deviceClient.CompleteAsync(receivedMessage);
+                        await deviceClient.CompleteAsync(receivedMessage);
+
+                        IoTHubMessageReceived(this, new IotHubMessage { DeviceId = deviceId, Bytes = bytes });
+                    }
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(5));

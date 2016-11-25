@@ -1,5 +1,9 @@
 # Connecting Azure IoT Hub using TTN C# Bridge
 
+
+UNDER CONSTRUCTION!!!!
+
+
 ## Introduction
 
 
