@@ -34,15 +34,8 @@ namespace TtnAzureBridge
 
             while (true)
             {
-                Thread.Sleep(1000);
+                Thread.Sleep(10000);
             }
-        }
-
-        public class Message2
-        {
-            public string payload { get; set; }
-            public int port { get; set; }
-            public string ttl { get; set; }
         }
 
         /// <summary>
@@ -201,9 +194,8 @@ namespace TtnAzureBridge
 
             dynamic iotHubMessage = JsonConvert.DeserializeObject(deviceMessage);
 
-            iotHubMessage.deviceId = deviceId;
-
-            iotHubMessage.time = time;
+            //      iotHubMessage.deviceId = deviceId;
+            //      iotHubMessage.time = time;
 
             var iotHubMessageString = JsonConvert.SerializeObject(iotHubMessage);
 
