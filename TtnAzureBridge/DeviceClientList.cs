@@ -1,10 +1,7 @@
 ﻿using Microsoft.Azure.Devices.Client;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,10 +11,14 @@ namespace TtnAzureBridge
     {
         private DateTime _lastRemovalOfOldDevices;
 
-        private int _removeDevicesAfterMinutes;
+        private readonly int _removeDevicesAfterMinutes;
 
-        public DeviceClientList(int removeDevicesAfterMinutes)
+        private readonly string _iotHubName;
+
+        public DeviceClientList(string iotHubName, int removeDevicesAfterMinutes)
         {
+            _iotHubName = iotHubName;
+
             _removeDevicesAfterMinutes = removeDevicesAfterMinutes;
 
             _lastRemovalOfOldDevices = DateTime.Now;
@@ -35,7 +36,7 @@ namespace TtnAzureBridge
             }
             else
             {
-                var deviceConnectionString = $"HostName={ConfigurationManager.AppSettings["IotHubName"]}.azure-devices.net;DeviceId={deviceId};SharedAccessKey={key}";
+                var deviceConnectionString = $"HostName={_iotHubName}.azure-devices.net;DeviceId={deviceId};SharedAccessKey={key}";
 
                 deviceClient = DeviceClient.CreateFromConnectionString(deviceConnectionString, TransportType.Amqp);
 
@@ -66,10 +67,7 @@ namespace TtnAzureBridge
 
             if (_lastRemovalOfOldDevices < lastCheck)
             {
-                if (DeviceRemoved != null)
-                {
-                    DeviceRemoved(this, $"Removal length: {this.Count} ");
-                }
+                DeviceRemoved?.Invoke(this, $"Removal length: {this.Count} ");
 
                 _lastRemovalOfOldDevices = DateTime.Now;
 
@@ -81,19 +79,13 @@ namespace TtnAzureBridge
                     {
                         item.Value.Thread.Abort();
 
-                        if (DeviceRemoved != null)
-                        {
-                            DeviceRemoved(this, item.Key);
-                        }
+                        DeviceRemoved?.Invoke(this, item.Key);
 
                         this.Remove(item.Key);
                     }
                 }
 
-                if (DeviceRemoved != null)
-                {
-                    DeviceRemoved(this, $"Removal count afterwards: {this.Count} ");
-                }
+                DeviceRemoved?.Invoke(this, $"Removal count afterwards: {this.Count} ");
             }
         }
 
