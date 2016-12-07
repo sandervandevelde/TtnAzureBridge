@@ -1,5 +1,4 @@
 ﻿using Microsoft.Azure.Devices;
-using Microsoft.Azure.Devices.Client.Exceptions;
 using Newtonsoft.Json;
 using System;
 using System.Text;
@@ -219,20 +218,13 @@ namespace TtnAzureBridge
 
             var iotHubMessageString = JsonConvert.SerializeObject(iotHubMessage);
 
-            WriteLine($"Message received ({counter}/{gatewayEui}/{latitude}/{longitude}/{frequency}/{rssi}): {iotHubMessageString}");
+            Write($"Message received ({counter}/{deviceId}/{gatewayEui}/{latitude}/{longitude}/{frequency}/{rssi}): {iotHubMessageString}");
 
             // create device client
 
-            string key;
-
-            if (_deviceKeyKind == "Primary")
-            {
-                key = device.Authentication.SymmetricKey.PrimaryKey;
-            }
-            else
-            {
-                key = device.Authentication.SymmetricKey.SecondaryKey;
-            }
+            var key = (_deviceKeyKind == "Primary")
+                ? device.Authentication.SymmetricKey.PrimaryKey
+                : device.Authentication.SymmetricKey.SecondaryKey;
 
             var deviceClient = _deviceClientList.GetDeviceClient(deviceId, key);
 
@@ -242,7 +234,7 @@ namespace TtnAzureBridge
 
             await deviceClient.SendEventAsync(message);
 
-            WriteLine("IoT Hub message sent");
+            WriteLine("-IoT Hub message sent");
         }
 
         /// <summary>
@@ -292,8 +284,6 @@ namespace TtnAzureBridge
                     // there are actually two different DeviceAlreadyExistsException exceptions. We react on the right one.
 
                     device = await _registryManager.GetDeviceAsync(deviceId);
-
-                    // WriteLine($"Device {deviceId} already exists");
                 }
             }
 
