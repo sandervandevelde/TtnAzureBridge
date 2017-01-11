@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
 
@@ -57,7 +58,10 @@ namespace TtnAzureBridge
             _iotHub = iotHub;
 
             _iotHubName = iotHubName;
+        }
 
+        public void Start()
+        {
             ConstructDeviceList();
 
             ConstructIoTHubInfrastructure();
@@ -175,17 +179,20 @@ namespace TtnAzureBridge
         /// <param name="e"></param>
         private async void Client_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
         {
-            WriteLine("MQTT handling uplink");
-
-            // Convert message to json
-
-            var jsonText = Encoding.ASCII.GetString(e.Message);
-
-            dynamic jsonMessage = JsonConvert.DeserializeObject(jsonText);
-
             // Get id of device
 
-            var deviceId = (string)jsonMessage.dev_eui;
+            var deviceId = e.Topic.Split('/')[2];
+
+            if (e.Message.Length < 200)
+            {
+                // ignore rogue messages
+
+                //WriteLine($"Message length {e.Message.Length} from {deviceId} ignored");
+
+                return;
+            }
+
+            WriteLine("MQTT handling uplink");
 
             // Create or get device
 
@@ -198,19 +205,20 @@ namespace TtnAzureBridge
                 return;
             }
 
-            // extract data from json
+            // Convert message to json
+            //"{\"port\":1,\"counter\":504,\"payload_raw\":\"+QA=\",\"payload_fields\":{\"errorCode\":0,\"numberOfCycles\":249},\"metadata\":{\"time\":\"2017-01-10T23:31:06.087189682Z\",\"frequency\":868.1,\"modulation\":\"LORA\",\"data_rate\":\"SF7BW125\",\"coding_rate\":\"4/5\",\"gateways\":[{\"gtw_id\":\"eui-b827ebffffc19ca8\",\"gtw_trusted\":true,\"timestamp\":3771642998,\"time\":\"1754-08-30T22:43:41.128654848Z\",\"channel\":0,\"rssi\":-80,\"snr\":9,\"latitude\":51.46018,\"longitude\":5.61902,\"altitude\":10}]}}");
 
-            var counter = jsonMessage.counter.ToString();
-            var deviceMessage = jsonMessage.fields.ToString();
+            var jsonText = Encoding.UTF8.GetString(e.Message);
+            var jsonObject = JObject.Parse(jsonText);
 
-            var metaText = jsonMessage.metadata.ToString();
-            var jsonMeta = JsonConvert.DeserializeObject(metaText);
+            var counter = jsonObject.SelectToken("counter").ToString();
+            var deviceMessage = jsonObject.SelectToken("payload_fields").ToString();
 
-            var gatewayEui = jsonMeta[0].gateway_eui.ToString();
-            var latitude = jsonMeta[0].latitude.ToString();
-            var longitude = jsonMeta[0].longitude.ToString();
-            var rssi = jsonMeta[0].rssi.ToString();
-            var frequency = jsonMeta[0].frequency.ToString();
+            var gatewayEui = jsonObject.SelectToken("metadata.gateways[0].gtw_id").ToString();
+            var latitude = jsonObject.SelectToken("metadata.gateways[0].latitude").ToString();
+            var longitude = jsonObject.SelectToken("metadata.gateways[0].longitude").ToString();
+            var rssi = jsonObject.SelectToken("metadata.gateways[0].rssi").ToString();
+            var frequency = jsonObject.SelectToken("metadata.frequency").ToString();
 
             // construct message for IoT Hub
 

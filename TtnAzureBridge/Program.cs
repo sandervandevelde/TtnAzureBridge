@@ -54,6 +54,8 @@ namespace TtnAzureBridge
                 Console.WriteLine(message);
             };
 
+            bridge.Start();
+
             while (true)
             {
                 Thread.Sleep(10000);
