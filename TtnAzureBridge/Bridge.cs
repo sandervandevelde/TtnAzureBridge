@@ -86,7 +86,7 @@ namespace TtnAzureBridge
                 Write("IoT Hub Downlink");
 
                 var payload = Convert.ToBase64String(message.Bytes);
-                var jsonMessage = "{\"payload\":\"" + payload + "\", \"port\": 1, \"ttl\": \"1h\"}";
+                var jsonMessage = "{\"payload_raw\":\"" + payload + "\", \"port\": 1}";
 
                 Write($"; Uploaded: {jsonMessage}");
 
