@@ -37,7 +37,9 @@ namespace TtnAzureBridge
 
         private readonly string _iotHubName;
 
-        public Bridge(int removeDevicesAfterMinutes, string applicationEui, string iotHub, string iotHubName, string topic, string brokerHostName, ushort? keepAlivePeriod, string applicationAccessKey, string deviceKeyKind, string exitOnConnectionClosed)
+        private readonly string _silentRemoval;
+
+        public Bridge(int removeDevicesAfterMinutes, string applicationEui, string iotHub, string iotHubName, string topic, string brokerHostName, ushort? keepAlivePeriod, string applicationAccessKey, string deviceKeyKind, string exitOnConnectionClosed, string silentRemoval)
         {
             _removeDevicesAfterMinutes = removeDevicesAfterMinutes;
 
@@ -58,11 +60,13 @@ namespace TtnAzureBridge
             _iotHub = iotHub;
 
             _iotHubName = iotHubName;
+
+            _silentRemoval = silentRemoval;
         }
 
         public void Start()
         {
-            ConstructDeviceList();
+            ConstructDeviceList(_silentRemoval);
 
             ConstructIoTHubInfrastructure();
 
@@ -72,13 +76,18 @@ namespace TtnAzureBridge
         /// <summary>
         /// Construct a device list for unique device handling
         /// </summary>
-        private void ConstructDeviceList()
+        private void ConstructDeviceList(string silentRemoval)
         {
             _deviceClientList = new DeviceClientList(_iotHubName, _removeDevicesAfterMinutes);
 
             _deviceClientList.DeviceRemoved += (sender, message) =>
             {
-                WriteLine(message);
+                var silent = silentRemoval.ToUpper() == "TRUE";
+
+                if (!silent)
+                {
+                    WriteLine(message);
+                }
             };
 
             _deviceClientList.IoTHubMessageReceived += (sender, message) =>

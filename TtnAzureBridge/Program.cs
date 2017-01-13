@@ -41,8 +41,10 @@ namespace TtnAzureBridge
 
             var exitOnConnectionClosed = ConfigurationManager.AppSettings["ExitOnConnectionClosed"];
 
+            var silentRemoval = ConfigurationManager.AppSettings["SilentRemoval"];
+
             var bridge = new Bridge(removeDevicesAfterMinutes, applicationEui, iotHub, iotHubName, topic, brokerHostName,
-                keepAlivePeriod, applicationAccessKey, deviceKeyKind, exitOnConnectionClosed);
+                keepAlivePeriod, applicationAccessKey, deviceKeyKind, exitOnConnectionClosed, silentRemoval);
 
             bridge.Notified += (sender, message) =>
             {
