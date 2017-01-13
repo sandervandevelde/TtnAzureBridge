@@ -83,7 +83,7 @@ namespace TtnAzureBridge
 
             _deviceClientList.IoTHubMessageReceived += (sender, message) =>
             {
-                Write("IoT Hub Downlink");
+                Write($"{DateTime.Now:HH:mm:ss} IoT Hub Downlink");
 
                 var payload = Convert.ToBase64String(message.Bytes);
                 var jsonMessage = "{\"payload_raw\":\"" + payload + "\", \"port\": 1}";
@@ -226,7 +226,7 @@ namespace TtnAzureBridge
 
             var iotHubMessageString = JsonConvert.SerializeObject(iotHubMessage);
 
-            Write($"Message received ({counter}/{deviceId}/{gatewayEui}/{latitude}/{longitude}/{frequency}/{rssi}): {iotHubMessageString}");
+            Write($"{DateTime.Now:HH:mm:ss} Message received ({counter}/{deviceId}/{gatewayEui}/{latitude}/{longitude}/{frequency}/{rssi}): {iotHubMessageString}");
 
             // create device client
 
