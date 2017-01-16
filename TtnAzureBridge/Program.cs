@@ -43,8 +43,10 @@ namespace TtnAzureBridge
 
             var silentRemoval = ConfigurationManager.AppSettings["SilentRemoval"];
 
+            var whiteListFileName = ConfigurationManager.AppSettings["WhiteListFileName"];
+
             var bridge = new Bridge(removeDevicesAfterMinutes, applicationEui, iotHub, iotHubName, topic, brokerHostName,
-                keepAlivePeriod, applicationAccessKey, deviceKeyKind, exitOnConnectionClosed, silentRemoval);
+                keepAlivePeriod, applicationAccessKey, deviceKeyKind, exitOnConnectionClosed, silentRemoval, whiteListFileName);
 
             bridge.Notified += (sender, message) =>
             {

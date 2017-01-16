@@ -17,6 +17,8 @@ namespace TtnAzureBridge
 
         private MqttClient _mqttClient;
 
+        private WhiteList _whiteList;
+
         private readonly int _removeDevicesAfterMinutes;
 
         private readonly string _applicationEui;
@@ -39,7 +41,9 @@ namespace TtnAzureBridge
 
         private readonly string _silentRemoval;
 
-        public Bridge(int removeDevicesAfterMinutes, string applicationEui, string iotHub, string iotHubName, string topic, string brokerHostName, ushort? keepAlivePeriod, string applicationAccessKey, string deviceKeyKind, string exitOnConnectionClosed, string silentRemoval)
+        private readonly string _whiteListFileName;
+
+        public Bridge(int removeDevicesAfterMinutes, string applicationEui, string iotHub, string iotHubName, string topic, string brokerHostName, ushort? keepAlivePeriod, string applicationAccessKey, string deviceKeyKind, string exitOnConnectionClosed, string silentRemoval, string whiteListFileName)
         {
             _removeDevicesAfterMinutes = removeDevicesAfterMinutes;
 
@@ -62,6 +66,8 @@ namespace TtnAzureBridge
             _iotHubName = iotHubName;
 
             _silentRemoval = silentRemoval;
+
+            _whiteListFileName = whiteListFileName;
         }
 
         public void Start()
@@ -69,6 +75,8 @@ namespace TtnAzureBridge
             ConstructDeviceList(_silentRemoval);
 
             ConstructIoTHubInfrastructure();
+
+            ConstructWhiteList(_whiteListFileName);
 
             StartMqttConnection();
         }
@@ -111,6 +119,28 @@ namespace TtnAzureBridge
 
                 WriteLine($" - Id {mqttResult}");
             };
+        }
+
+        public void ConstructWhiteList(string fileName)
+        {
+            _whiteList = new WhiteList();
+
+            var count = _whiteList.Load(fileName);
+
+            switch (count)
+            {
+                case -1:
+                    WriteLine("No whitelist filtering");
+                    break;
+
+                case 0:
+                    WriteLine("Whitelist is empty");
+                    break;
+
+                default:
+                    WriteLine($"Whitelist contains {count} entries");
+                    break;
+            }
         }
 
         /// <summary>
@@ -196,8 +226,6 @@ namespace TtnAzureBridge
             {
                 // ignore rogue messages
 
-                //WriteLine($"Message length {e.Message.Length} from {deviceId} ignored");
-
                 return;
             }
 
@@ -207,6 +235,13 @@ namespace TtnAzureBridge
 
             var device = await AddDeviceAsync(deviceId);
 
+            if (!_whiteList.Accept(deviceId))
+            {
+                WriteLine($"Device {deviceId} is not whitelisted");
+
+                return;
+            }
+
             if (device.Status != DeviceStatus.Enabled)
             {
                 WriteLine($"Device {deviceId} disabled");
@@ -215,12 +250,15 @@ namespace TtnAzureBridge
             }
 
             // Convert message to json
-            //"{\"port\":1,\"counter\":504,\"payload_raw\":\"+QA=\",\"payload_fields\":{\"errorCode\":0,\"numberOfCycles\":249},\"metadata\":{\"time\":\"2017-01-10T23:31:06.087189682Z\",\"frequency\":868.1,\"modulation\":\"LORA\",\"data_rate\":\"SF7BW125\",\"coding_rate\":\"4/5\",\"gateways\":[{\"gtw_id\":\"eui-b827ebffffc19ca8\",\"gtw_trusted\":true,\"timestamp\":3771642998,\"time\":\"1754-08-30T22:43:41.128654848Z\",\"channel\":0,\"rssi\":-80,\"snr\":9,\"latitude\":51.46018,\"longitude\":5.61902,\"altitude\":10}]}}");
 
             var jsonText = Encoding.UTF8.GetString(e.Message);
+
+            dynamic bb = JsonConvert.DeserializeObject(jsonText);
+
+            var counter = bb.counter.ToString();
+
             var jsonObject = JObject.Parse(jsonText);
 
-            var counter = jsonObject.SelectToken("counter").ToString();
             var deviceMessage = jsonObject.SelectToken("payload_fields").ToString();
 
             var gatewayEui = jsonObject.SelectToken("metadata.gateways[0].gtw_id").ToString();
