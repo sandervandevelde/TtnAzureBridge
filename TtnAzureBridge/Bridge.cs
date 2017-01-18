@@ -172,7 +172,9 @@ namespace TtnAzureBridge
 
             _mqttClient.MqttMsgPublishReceived += Client_MqttMsgPublishReceived;
 
-            _mqttClient.MqttMsgPublished += _mqttClient_MqttMsgPublished;
+            _mqttClient.MqttMsgPublished += mqttClient_MqttMsgPublished;
+
+            _mqttClient.MqttMsgUnsubscribed += mqttClient_MqttMsgUnsubscribed;
 
             byte response;
 
@@ -206,7 +208,7 @@ namespace TtnAzureBridge
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void _mqttClient_MqttMsgPublished(object sender, MqttMsgPublishedEventArgs e)
+        private void mqttClient_MqttMsgPublished(object sender, MqttMsgPublishedEventArgs e)
         {
             WriteLine($"MQTT handling downlink Id {e.MessageId} published: {e.IsPublished}");
         }
@@ -302,20 +304,36 @@ namespace TtnAzureBridge
             WriteLine($"MQTT subscribed to {_applicationEui} on {_brokerHostName}");
         }
 
-        private void Client_ConnectionClosed(object sender, EventArgs e)
+        private void mqttClient_MqttMsgUnsubscribed(object sender, MqttMsgUnsubscribedEventArgs e)
         {
             Write($"time {DateTime.Now} -> ");
 
-            Write("MQTT connection closed.");
+            Write($"MQTT unsubscribed to {_applicationEui} on {_brokerHostName};");
 
             if (_exitOnConnectionClosed.ToUpper() == "TRUE")
             {
-                WriteLine(" Exit for restart.");
+                WriteLine(" Exit for restart");
 
                 Environment.Exit(1);
             }
 
-            Write(" No exit.");
+            Write(" No exit");
+        }
+
+        private void Client_ConnectionClosed(object sender, EventArgs e)
+        {
+            Write($"time {DateTime.Now} -> ");
+
+            Write("MQTT connection closed");
+
+            if (_exitOnConnectionClosed.ToUpper() == "TRUE")
+            {
+                WriteLine(" Exit for restart");
+
+                Environment.Exit(1);
+            }
+
+            Write(" No exit");
         }
 
         /// <summary>
