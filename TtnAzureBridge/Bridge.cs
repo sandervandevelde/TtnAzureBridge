@@ -21,7 +21,7 @@ namespace TtnAzureBridge
 
         private readonly int _removeDevicesAfterMinutes;
 
-        private readonly string _applicationEui;
+        private readonly string _applicationId;
 
         private readonly string _deviceKeyKind;
 
@@ -43,11 +43,11 @@ namespace TtnAzureBridge
 
         private readonly string _whiteListFileName;
 
-        public Bridge(int removeDevicesAfterMinutes, string applicationEui, string iotHub, string iotHubName, string topic, string brokerHostName, ushort? keepAlivePeriod, string applicationAccessKey, string deviceKeyKind, string exitOnConnectionClosed, string silentRemoval, string whiteListFileName)
+        public Bridge(int removeDevicesAfterMinutes, string applicationId, string iotHub, string iotHubName, string topic, string brokerHostName, ushort? keepAlivePeriod, string applicationAccessKey, string deviceKeyKind, string exitOnConnectionClosed, string silentRemoval, string whiteListFileName)
         {
             _removeDevicesAfterMinutes = removeDevicesAfterMinutes;
 
-            _applicationEui = applicationEui;
+            _applicationId = applicationId;
 
             _deviceKeyKind = deviceKeyKind;
 
@@ -112,7 +112,7 @@ namespace TtnAzureBridge
 
                 var mqttResult =
                  _mqttClient.Publish(
-                     $"{_applicationEui}/devices/{message.DeviceId}/down",
+                     $"{_applicationId}/devices/{message.DeviceId}/down",
                      bytes,
                      MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE,
                      false);
@@ -182,7 +182,7 @@ namespace TtnAzureBridge
             {
                 response = _mqttClient.Connect(
                     Guid.NewGuid().ToString(),
-                    _applicationEui,
+                    _applicationId,
                     _applicationAccessKey,
                     true,
                     _keepAlivePeriod.Value);
@@ -193,7 +193,7 @@ namespace TtnAzureBridge
             {
                 response = _mqttClient.Connect(
                     Guid.NewGuid().ToString(),
-                    _applicationEui,
+                    _applicationId,
                     _applicationAccessKey);
             }
 
@@ -301,14 +301,14 @@ namespace TtnAzureBridge
         /// <param name="e"></param>
         private void Client_MqttMsgSubscribed(object sender, MqttMsgSubscribedEventArgs e)
         {
-            WriteLine($"MQTT subscribed to {_applicationEui} on {_brokerHostName}");
+            WriteLine($"MQTT subscribed to {_applicationId} on {_brokerHostName}");
         }
 
         private void mqttClient_MqttMsgUnsubscribed(object sender, MqttMsgUnsubscribedEventArgs e)
         {
             Write($"time {DateTime.Now} -> ");
 
-            Write($"MQTT unsubscribed to {_applicationEui} on {_brokerHostName};");
+            Write($"MQTT unsubscribed to {_applicationId} on {_brokerHostName};");
 
             if (_exitOnConnectionClosed.ToUpper() == "TRUE")
             {

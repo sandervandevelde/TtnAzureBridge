@@ -15,7 +15,9 @@ namespace TtnAzureBridge
             var removeDevicesAfterMinutes =
                 Convert.ToInt32(ConfigurationManager.AppSettings["RemoveDevicesAfterMinutes"]);
 
-            var applicationEui = ConfigurationManager.AppSettings["ApplicationEui"];
+            var applicationId = ConfigurationManager.AppSettings["ApplicationId"];
+
+            var applicationAccessKey = ConfigurationManager.AppSettings["ApplicationAccessKey"];
 
             var iotHub = ConfigurationManager.ConnectionStrings["IoTHub"].ConnectionString;
 
@@ -33,8 +35,6 @@ namespace TtnAzureBridge
                 keepAlivePeriod = null;
             }
 
-            var applicationAccessKey = ConfigurationManager.AppSettings["ApplicationAccessKey"];
-
             var topic = ConfigurationManager.AppSettings["Topic"];
 
             var deviceKeyKind = ConfigurationManager.AppSettings["DeviceKeyKind"];
@@ -45,7 +45,7 @@ namespace TtnAzureBridge
 
             var whiteListFileName = ConfigurationManager.AppSettings["WhiteListFileName"];
 
-            var bridge = new Bridge(removeDevicesAfterMinutes, applicationEui, iotHub, iotHubName, topic, brokerHostName,
+            var bridge = new Bridge(removeDevicesAfterMinutes, applicationId, iotHub, iotHubName, topic, brokerHostName,
                 keepAlivePeriod, applicationAccessKey, deviceKeyKind, exitOnConnectionClosed, silentRemoval, whiteListFileName);
 
             bridge.Notified += (sender, message) =>
