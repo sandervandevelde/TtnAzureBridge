@@ -255,19 +255,17 @@ namespace TtnAzureBridge
 
             var jsonText = Encoding.UTF8.GetString(e.Message);
 
-            dynamic bb = JsonConvert.DeserializeObject(jsonText);
+            dynamic jsonObject = JsonConvert.DeserializeObject(jsonText);
 
-            var counter = bb.counter.ToString();
-
-            var jsonObject = JObject.Parse(jsonText);
-
-            var deviceMessage = jsonObject.SelectToken("payload_fields").ToString();
-
-            var gatewayEui = jsonObject.SelectToken("metadata.gateways[0].gtw_id").ToString();
-            var latitude = jsonObject.SelectToken("metadata.gateways[0].latitude").ToString();
-            var longitude = jsonObject.SelectToken("metadata.gateways[0].longitude").ToString();
-            var rssi = jsonObject.SelectToken("metadata.gateways[0].rssi").ToString();
-            var frequency = jsonObject.SelectToken("metadata.frequency").ToString();
+            var counter = jsonObject.counter?.ToString();
+            var deviceMessage = jsonObject.payload_fields?.ToString();
+            var metadata = jsonObject.metadata;
+            var frequency = metadata?.frequency?.ToString();
+            var gateway = metadata?.gateways?[0];
+            var gatewayEui = gateway?.gtw_id?.ToString();
+            var latitude = gateway?.latitude?.ToString();
+            var longitude = gateway?.longitude?.ToString();
+            var rssi = gateway?.rssi?.ToString();
 
             // construct message for IoT Hub
 
