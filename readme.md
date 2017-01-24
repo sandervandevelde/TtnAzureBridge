@@ -8,22 +8,23 @@ Just download the sourcecode and fill in the following application settings:
 
 ```xml
   <appSettings>
-    <add key="BrokerHostName" value="staging.thethingsnetwork.org" />
-    <add key="ApplicationEui" value="[TTN App EUI]" />
+    <add key="BrokerHostName" value="eu.thethings.network" />
+    <add key="ApplicationId" value="[TTN App Id]" />
     <add key="ApplicationAccessKey" value="[TTN App Access Key]" />
     <add key="DeviceKeyKind" value="Primary" />
     <add key="Topic" value="#" />
     <add key="IotHubName" value="[iothub name]" />
     <add key="KeepAlivePeriod" value="60000" />
     <add key="ExitOnConnectionClosed" value="False" />
-    <add key="RemoveDevicesAfterMinutes" value="5" />
+    <add key="RemoveDevicesAfterMinutes" value="60" />
+    <add key="SilentRemoval" value="True" />
+    <add key="WhiteListFileName" value="Filter\whitelist.json" />
   </appSettings>
 
   <connectionStrings>
     <add name="IoTHub" connectionString="HostName=[iothub name].azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=[shared access key]" />
   </connectionStrings>
 ```
-
 *Note: This Bridge connects to TTN apps, added to https://staging.thethingsnetwork.org/applications*
 
 ## Bridge output
@@ -52,7 +53,6 @@ This Bridge is capable of sending downlink messages. These are command for a spe
 
 When a device sends a message to bridge, a deviceclient is connected to the IoT Hub. This client is then listening for commands to be send back. In the AppSettings, you can specify how long this deviceclient will exist, using the *RemoveDevicesAfterMinutes* setting.
 
-
 ## MQTT Connection closed
 
 It can happen that the MQTT connection is closed, for unknown reasons. If that happens, an event handler is executed. Using the *ExitOnConnectionClosed* setting, you can specify what will happen. 
@@ -63,4 +63,6 @@ I suggest to run this bridge as an Azure Web Job and close the application if th
 
 This bridge can be used as an Azure webJob too. Follow this [workshop](workshop-ttncsharpbridge.md) to depoy it as a WebJob.
 
+## White list
 
+A unique feature is a white list. Add the IDs of devices which are expected to send telemetry. All other devices are ignored (no registration, no upload of telemetry, no download of commands)
