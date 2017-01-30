@@ -166,14 +166,19 @@ namespace TtnAzureBridge
                 new[] { _topic },
                 new[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE });
 
+            _mqttClient.ConnectionClosed -= Client_ConnectionClosed;
             _mqttClient.ConnectionClosed += Client_ConnectionClosed;
 
+            _mqttClient.MqttMsgSubscribed -= Client_MqttMsgSubscribed;
             _mqttClient.MqttMsgSubscribed += Client_MqttMsgSubscribed;
 
+            _mqttClient.MqttMsgPublishReceived -= Client_MqttMsgPublishReceived;
             _mqttClient.MqttMsgPublishReceived += Client_MqttMsgPublishReceived;
 
+            _mqttClient.MqttMsgPublished -= mqttClient_MqttMsgPublished;
             _mqttClient.MqttMsgPublished += mqttClient_MqttMsgPublished;
 
+            _mqttClient.MqttMsgUnsubscribed -= mqttClient_MqttMsgUnsubscribed;
             _mqttClient.MqttMsgUnsubscribed += mqttClient_MqttMsgUnsubscribed;
 
             byte response;
