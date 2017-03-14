@@ -264,6 +264,14 @@ namespace TtnAzureBridge
 
             var counter = jsonObject.counter?.ToString();
             var deviceMessage = jsonObject.payload_fields?.ToString();
+
+            if (string.IsNullOrEmpty(deviceMessage))
+            {
+                WriteLine($"Device {deviceId} seen");
+
+                return;
+            }
+
             var metadata = jsonObject.metadata;
             var frequency = metadata?.frequency?.ToString();
             var gateway = metadata?.gateways?[0];
