@@ -290,12 +290,12 @@ namespace TtnAzureBridge
 
             if (_addGatewayInfo)
             {
-                iotHubMessage.ttnCounter = counter;
-                iotHubMessage.ttnGatewayEui = gatewayEui;
-                iotHubMessage.ttnGatewayLat = latitude;
-                iotHubMessage.ttnGatewayLon = longitude;
-                iotHubMessage.ttnGatewayFreq = frequency;
-                iotHubMessage.ttnGatewayRssi = rssi;
+                iotHubMessage.ttnCounter = jsonObject.counter ?? -1;
+                iotHubMessage.ttnGatewayEui = gateway?.gtw_id?.ToString();
+                iotHubMessage.ttnGatewayLat = gateway?.latitude ?? 0.0;
+                iotHubMessage.ttnGatewayLon = gateway?.longitude ?? 0.0;
+                iotHubMessage.ttnGatewayFreq = metadata?.frequency ?? 0.0;
+                iotHubMessage.ttnGatewayRssi = gateway?.rssi ?? 0;
             }
             
             var iotHubMessageString = JsonConvert.SerializeObject(iotHubMessage);
