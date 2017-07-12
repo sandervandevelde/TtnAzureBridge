@@ -45,8 +45,10 @@ namespace TtnAzureBridge
 
             var whiteListFileName = ConfigurationManager.AppSettings["WhiteListFileName"];
 
+            var addGatewayInfo = bool.Parse(ConfigurationManager.AppSettings["addGatewayInfo"]);
+
             var bridge = new Bridge(removeDevicesAfterMinutes, applicationId, iotHub, iotHubName, topic, brokerHostName,
-                keepAlivePeriod, applicationAccessKey, deviceKeyKind, exitOnConnectionClosed, silentRemoval, whiteListFileName);
+                keepAlivePeriod, applicationAccessKey, deviceKeyKind, exitOnConnectionClosed, silentRemoval, whiteListFileName, addGatewayInfo);
 
             bridge.Notified += (sender, message) =>
             {

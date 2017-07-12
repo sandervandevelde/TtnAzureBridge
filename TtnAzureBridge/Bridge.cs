@@ -43,7 +43,9 @@ namespace TtnAzureBridge
 
         private readonly string _whiteListFileName;
 
-        public Bridge(int removeDevicesAfterMinutes, string applicationId, string iotHub, string iotHubName, string topic, string brokerHostName, ushort? keepAlivePeriod, string applicationAccessKey, string deviceKeyKind, string exitOnConnectionClosed, string silentRemoval, string whiteListFileName)
+        private readonly bool _addGatewayInfo;
+
+        public Bridge(int removeDevicesAfterMinutes, string applicationId, string iotHub, string iotHubName, string topic, string brokerHostName, ushort? keepAlivePeriod, string applicationAccessKey, string deviceKeyKind, string exitOnConnectionClosed, string silentRemoval, string whiteListFileName, bool addGatewayInfo)
         {
             _removeDevicesAfterMinutes = removeDevicesAfterMinutes;
 
@@ -68,6 +70,8 @@ namespace TtnAzureBridge
             _silentRemoval = silentRemoval;
 
             _whiteListFileName = whiteListFileName;
+
+            _addGatewayInfo = addGatewayInfo;
         }
 
         public void Start()
@@ -284,6 +288,16 @@ namespace TtnAzureBridge
 
             dynamic iotHubMessage = JsonConvert.DeserializeObject(deviceMessage);
 
+            if (_addGatewayInfo)
+            {
+                iotHubMessage.ttnCounter = counter;
+                iotHubMessage.ttnGatewayEui = gatewayEui;
+                iotHubMessage.ttnGatewayLat = latitude;
+                iotHubMessage.ttnGatewayLon = longitude;
+                iotHubMessage.ttnGatewayFreq = frequency;
+                iotHubMessage.ttnGatewayrssi = rssi;
+            }
+            
             var iotHubMessageString = JsonConvert.SerializeObject(iotHubMessage);
 
             Write($"{DateTime.Now:HH:mm:ss} Message received ({counter}/{deviceId}/{gatewayEui}/{latitude}/{longitude}/{frequency}/{rssi}): {iotHubMessageString}");
