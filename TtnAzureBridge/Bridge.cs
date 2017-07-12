@@ -295,7 +295,7 @@ namespace TtnAzureBridge
                 iotHubMessage.ttnGatewayLat = latitude;
                 iotHubMessage.ttnGatewayLon = longitude;
                 iotHubMessage.ttnGatewayFreq = frequency;
-                iotHubMessage.ttnGatewayrssi = rssi;
+                iotHubMessage.ttnGatewayRssi = rssi;
             }
             
             var iotHubMessageString = JsonConvert.SerializeObject(iotHubMessage);
