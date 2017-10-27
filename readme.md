@@ -66,3 +66,13 @@ This bridge can be used as an Azure webJob too. Follow this [workshop](workshop-
 ## White list
 
 A unique feature is a white list. Add the IDs of devices which are expected to send telemetry. All other devices are ignored (no registration, no upload of telemetry, no download of commands)
+
+## Common mistakes
+
+I have seen some dificulties for users so be aware:
+
+1. Check the connection string of the IoTHub? both the name of the IoTHub, the name of the policy and the security key for this policy should be in sync!
+2. Do you only see "device XYZ seen" and nothing more? Check the TTN payload functions. It seems only bytes are received, no JSON
+3. Do not forget to run this as webjob in a WebApp withing running the website as 'always on' (see the  WebApp settings)
+4. Do not forget to override the appsettings in the WebApp when runnig this bridge as a WebJob
+5. Run this bridge as 'single instance' as a WebJob
