@@ -278,7 +278,7 @@ namespace TtnAzureBridge
 
             if (jsonObject.payload_fields == null)
             {
-                WriteLine($"Payload function value expected. Please check TTN payload functions.");
+                WriteLine($"Payload function fields received are empty.");
                 return;
             }
 
@@ -286,7 +286,7 @@ namespace TtnAzureBridge
 
             if (string.IsNullOrEmpty(deviceMessage))
             {
-                WriteLine($"Device {deviceId} seen");
+                WriteLine($"Device {deviceId} seen ({deviceMessage})");
                 return;
             }
 
