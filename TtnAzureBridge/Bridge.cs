@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using System;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
 
@@ -35,9 +34,9 @@ namespace TtnAzureBridge
 
         private readonly string _applicationAccessKey;
 
-        private readonly string _iotHub;
+        private readonly string _iotHubConnectionString;
 
-        private readonly string _iotHubName;
+        private readonly string _shortIotHubName;
 
         private readonly string _silentRemoval;
 
@@ -45,7 +44,7 @@ namespace TtnAzureBridge
 
         private readonly bool _addGatewayInfo;
 
-        public Bridge(int removeDevicesAfterMinutes, string applicationId, string iotHub, string iotHubName, string topic, string brokerHostName, ushort? keepAlivePeriod, string applicationAccessKey, string deviceKeyKind, string exitOnConnectionClosed, string silentRemoval, string whiteListFileName, bool addGatewayInfo)
+        public Bridge(int removeDevicesAfterMinutes, string applicationId, string iotHubConnectionString, string shortIotHubName, string topic, string brokerHostName, ushort? keepAlivePeriod, string applicationAccessKey, string deviceKeyKind, string exitOnConnectionClosed, string silentRemoval, string whiteListFileName, bool addGatewayInfo)
         {
             _removeDevicesAfterMinutes = removeDevicesAfterMinutes;
 
@@ -63,9 +62,9 @@ namespace TtnAzureBridge
 
             _applicationAccessKey = applicationAccessKey;
 
-            _iotHub = iotHub;
+            _iotHubConnectionString = iotHubConnectionString;
 
-            _iotHubName = iotHubName;
+            _shortIotHubName = shortIotHubName;
 
             _silentRemoval = silentRemoval;
 
@@ -90,7 +89,7 @@ namespace TtnAzureBridge
         /// </summary>
         private void ConstructDeviceList(string silentRemoval)
         {
-            _deviceClientList = new DeviceClientList(_iotHubName, _removeDevicesAfterMinutes);
+            _deviceClientList = new DeviceClientList(_shortIotHubName, _removeDevicesAfterMinutes);
 
             _deviceClientList.DeviceRemoved += (sender, message) =>
             {
@@ -152,11 +151,20 @@ namespace TtnAzureBridge
         /// </summary>
         private void ConstructIoTHubInfrastructure()
         {
-            _registryManager = RegistryManager.CreateFromConnectionString(_iotHub);
+            try
+            {
+                _registryManager = RegistryManager.CreateFromConnectionString(_iotHubConnectionString);
+            }
+            catch (Exception ex)
+            {
+                WriteLine($"IoT Hub not connected. Connectionstring '{_iotHubConnectionString}' is invalid. ({ex.Message})");
+
+                return;
+            }
 
             Write($"time {DateTime.Now} -> ");
 
-            WriteLine($"IoT Hub {_iotHubName} connected");
+            WriteLine($"IoT Hub {_shortIotHubName} connected");
         }
 
         /// <summary>
@@ -267,12 +275,18 @@ namespace TtnAzureBridge
             dynamic jsonObject = JsonConvert.DeserializeObject(jsonText);
 
             var counter = jsonObject.counter?.ToString();
+
+            if (jsonObject.payload_fields == null)
+            {
+                WriteLine($"Payload function value expected. Please check TTN payload functions.");
+                return;
+            }
+
             var deviceMessage = jsonObject.payload_fields?.ToString();
 
             if (string.IsNullOrEmpty(deviceMessage))
             {
                 WriteLine($"Device {deviceId} seen");
-
                 return;
             }
 

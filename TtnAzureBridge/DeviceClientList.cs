@@ -13,11 +13,11 @@ namespace TtnAzureBridge
 
         private readonly int _removeDevicesAfterMinutes;
 
-        private readonly string _iotHubName;
+        private readonly string _shortIotHubName;
 
-        public DeviceClientList(string iotHubName, int removeDevicesAfterMinutes)
+        public DeviceClientList(string shortIotHubName, int removeDevicesAfterMinutes)
         {
-            _iotHubName = iotHubName;
+            _shortIotHubName = shortIotHubName;
 
             _removeDevicesAfterMinutes = removeDevicesAfterMinutes;
 
@@ -36,7 +36,7 @@ namespace TtnAzureBridge
             }
             else
             {
-                var deviceConnectionString = $"HostName={_iotHubName}.azure-devices.net;DeviceId={deviceId};SharedAccessKey={key}";
+                var deviceConnectionString = $"HostName={_shortIotHubName}.azure-devices.net;DeviceId={deviceId};SharedAccessKey={key}";
 
                 deviceClient = DeviceClient.CreateFromConnectionString(deviceConnectionString, TransportType.Amqp);
 

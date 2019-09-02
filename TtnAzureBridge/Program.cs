@@ -12,16 +12,15 @@ namespace TtnAzureBridge
         /// <param name="args"></param>
         private static void Main(string[] args)
         {
-            var removeDevicesAfterMinutes =
-                Convert.ToInt32(ConfigurationManager.AppSettings["RemoveDevicesAfterMinutes"]);
+            var removeDevicesAfterMinutes = Convert.ToInt32(ConfigurationManager.AppSettings["RemoveDevicesAfterMinutes"]);
 
             var applicationId = ConfigurationManager.AppSettings["ApplicationId"];
 
             var applicationAccessKey = ConfigurationManager.AppSettings["ApplicationAccessKey"];
 
-            var iotHub = ConfigurationManager.ConnectionStrings["IoTHub"].ConnectionString;
+            var iotHubConnectionString = ConfigurationManager.ConnectionStrings["IoTHub"].ConnectionString;
 
-            var iotHubName = ConfigurationManager.AppSettings["IotHubName"];
+            var shortIotHubName = ConfigurationManager.AppSettings["ShortIotHubName"];
 
             var brokerHostName = ConfigurationManager.AppSettings["BrokerHostName"];
 
@@ -45,9 +44,9 @@ namespace TtnAzureBridge
 
             var whiteListFileName = ConfigurationManager.AppSettings["WhiteListFileName"];
 
-            var addGatewayInfo = bool.Parse(ConfigurationManager.AppSettings["addGatewayInfo"]);
+            var addGatewayInfo = bool.Parse(ConfigurationManager.AppSettings["AddGatewayInfo"]);
 
-            var bridge = new Bridge(removeDevicesAfterMinutes, applicationId, iotHub, iotHubName, topic, brokerHostName,
+            var bridge = new Bridge(removeDevicesAfterMinutes, applicationId, iotHubConnectionString, shortIotHubName, topic, brokerHostName,
                 keepAlivePeriod, applicationAccessKey, deviceKeyKind, exitOnConnectionClosed, silentRemoval, whiteListFileName, addGatewayInfo);
 
             bridge.Notified += (sender, message) =>

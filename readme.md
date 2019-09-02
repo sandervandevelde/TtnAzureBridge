@@ -13,16 +13,17 @@ Just download the sourcecode and fill in the following application settings:
     <add key="ApplicationAccessKey" value="[TTN App Access Key]" />
     <add key="DeviceKeyKind" value="Primary" />
     <add key="Topic" value="#" />
-    <add key="IotHubName" value="[iothub name]" />
+    <add key="ShortIotHubName" value="[iothub name]" />
     <add key="KeepAlivePeriod" value="60000" />
     <add key="ExitOnConnectionClosed" value="False" />
     <add key="RemoveDevicesAfterMinutes" value="60" />
     <add key="SilentRemoval" value="True" />
     <add key="WhiteListFileName" value="Filter\whitelist.json" />
+    <add key="AddGatewayInfo" value="True"/>
   </appSettings>
 
   <connectionStrings>
-    <add name="IoTHub" connectionString="HostName=[iothub name].azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=[shared access key]" />
+    <add name="IoTHub" connectionString="HostName=[short iothub name].azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=[shared access key]" />
   </connectionStrings>
 ```
 *Note: This Bridge connects to TTN apps, added to https://staging.thethingsnetwork.org/applications*
