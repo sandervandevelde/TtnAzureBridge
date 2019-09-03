@@ -333,16 +333,19 @@ namespace TtnAzureBridge
 
             // send message
 
-            var message = new Microsoft.Azure.Devices.Client.Message(Encoding.UTF8.GetBytes(iotHubMessageString));
+            using (var message = new Microsoft.Azure.Devices.Client.Message(Encoding.UTF8.GetBytes(iotHubMessageString)))
+            {
+                try
+                {
+                    await deviceClient.SendEventAsync(message);
+                    WriteLine("-IoT Hub message sent");
+                }
+                catch (Exception ex)
+                {
+                    // TODO: Transent errors should trigger a retry.
 
-            try
-            {
-                await deviceClient.SendEventAsync(message);
-                WriteLine("-IoT Hub message sent");
-            }
-            catch (Exception ex)
-            {
-                WriteLine($"-IoT Hub message send error: {ex.Message}");
+                    WriteLine($"-IoT Hub message send error: {ex.Message}");
+                }
             }
         }
 
