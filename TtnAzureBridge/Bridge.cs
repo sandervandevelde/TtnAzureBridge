@@ -81,7 +81,14 @@ namespace TtnAzureBridge
 
             ConstructWhiteList(_whiteListFileName);
 
-            StartMqttConnection();
+            try
+            {
+                StartMqttConnection();
+            }
+            catch (System.Net.Sockets.SocketException ex)
+            {
+                WriteLine($"Network socket exception. Please check your network ({ex.Message})");
+            }
         }
 
         /// <summary>
@@ -328,9 +335,15 @@ namespace TtnAzureBridge
 
             var message = new Microsoft.Azure.Devices.Client.Message(Encoding.UTF8.GetBytes(iotHubMessageString));
 
-            await deviceClient.SendEventAsync(message);
-
-            WriteLine("-IoT Hub message sent");
+            try
+            {
+                await deviceClient.SendEventAsync(message);
+                WriteLine("-IoT Hub message sent");
+            }
+            catch (Exception ex)
+            {
+                WriteLine($"-IoT Hub message send error: {ex.Message}");
+            }
         }
 
         /// <summary>
