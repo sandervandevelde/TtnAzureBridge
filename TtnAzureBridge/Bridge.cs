@@ -342,8 +342,6 @@ namespace TtnAzureBridge
                 }
                 catch (Exception ex)
                 {
-                    // TODO: Transent errors should trigger a retry.
-
                     WriteLine($"-IoT Hub message send error: {ex.Message}");
                 }
             }
@@ -392,7 +390,7 @@ namespace TtnAzureBridge
         }
 
         /// <summary>
-        /// Add a device to the IoT Hub registry
+        /// Add a device to the IoT Hub registry if it does not exist already.
         /// </summary>
         /// <param name="deviceId"></param>
         /// <returns>Microsoft.Azure.Devices.Device</returns>
@@ -400,19 +398,12 @@ namespace TtnAzureBridge
         {
             Device device;
 
+            device = await _registryManager.GetDeviceAsync(deviceId);
+
+            if (device == null)
             {
-                try
-                {
-                    device = await _registryManager.AddDeviceAsync(new Device(deviceId));
-
-                    WriteLine($"Device {deviceId} added");
-                }
-                catch (Microsoft.Azure.Devices.Common.Exceptions.DeviceAlreadyExistsException)
-                {
-                    // there are actually two different DeviceAlreadyExistsException exceptions. We react on the right one.
-
-                    device = await _registryManager.GetDeviceAsync(deviceId);
-                }
+                device = await _registryManager.AddDeviceAsync(new Device(deviceId));
+                WriteLine($"Device {deviceId} added");
             }
 
             return device;
@@ -420,12 +411,12 @@ namespace TtnAzureBridge
 
         private void Write(string message)
         {
-            Notified?.Invoke(this, message);
+            Notified(this, message);
         }
 
         private void WriteLine(string message)
         {
-            LineNotified?.Invoke(this, message);
+            LineNotified(this, message);
         }
 
         public event EventHandler<string> Notified;

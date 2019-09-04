@@ -67,7 +67,7 @@ namespace TtnAzureBridge
 
             if (_lastRemovalOfOldDevices < lastCheck)
             {
-                DeviceRemoved?.Invoke(this, $"Removal length: {this.Count} ");
+                DeviceRemoved(this, $"Removal length: {this.Count} ");
 
                 _lastRemovalOfOldDevices = DateTime.Now;
 
@@ -79,13 +79,13 @@ namespace TtnAzureBridge
                     {
                         item.Value.Thread.Abort();
 
-                        DeviceRemoved?.Invoke(this, item.Key);
+                        DeviceRemoved(this, item.Key);
 
                         this.Remove(item.Key);
                     }
                 }
 
-                DeviceRemoved?.Invoke(this, $"Removal count afterwards: {this.Count} ");
+                DeviceRemoved(this, $"Removal count afterwards: {this.Count} ");
             }
         }
 
@@ -103,7 +103,7 @@ namespace TtnAzureBridge
         {
             while (true)
             {
-                var receivedMessage = await deviceClient.ReceiveAsync();
+                var receivedMessage = await deviceClient.ReceiveAsync(new TimeSpan(0,0,2));
 
                 if (receivedMessage != null)
                 {
@@ -120,21 +120,5 @@ namespace TtnAzureBridge
                 await Task.Delay(TimeSpan.FromSeconds(5));
             }
         }
-    }
-
-    public class GatewayDeviceClient
-    {
-        public DeviceClient DeviceClient { get; set; }
-
-        public Thread Thread { get; set; }
-
-        public DateTime DateTimeLastVisit { get; set; }
-    }
-
-    public class IotHubMessage
-    {
-        public string DeviceId { get; set; }
-
-        public byte[] Bytes { get; set; }
     }
 }

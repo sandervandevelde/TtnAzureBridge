@@ -25,6 +25,7 @@ namespace TtnAzureBridge
             var brokerHostName = ConfigurationManager.AppSettings["BrokerHostName"];
 
             ushort? keepAlivePeriod;
+
             if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["KeepAlivePeriod"]))
             {
                 keepAlivePeriod = Convert.ToUInt16(ConfigurationManager.AppSettings["KeepAlivePeriod"]);
@@ -63,7 +64,7 @@ namespace TtnAzureBridge
 
             while (true)
             {
-                Thread.Sleep(10000);
+                Thread.Sleep(1000);
             }
         }
     }
