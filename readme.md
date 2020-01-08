@@ -68,7 +68,7 @@ This bridge can be used as an Azure webJob too. Follow this [workshop](workshop-
 
 A unique feature is a white list. Add the IDs of devices which are expected to send telemetry. All other devices are ignored (no registration, no upload of telemetry, no download of commands)
 
-## Common mistakes
+## Common issues
 
 I have seen some dificulties for users so be aware:
 
