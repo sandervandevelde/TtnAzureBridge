@@ -1,4 +1,6 @@
-# TTN Azure Bridge
+# TTN Azure Bridge V2
+
+Note, this bridge was designed for the V2 version of the TTN console.
 
 ## Introduction
 
